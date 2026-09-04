@@ -120,7 +120,6 @@ a:hover { color: var(--dd-orange); }
 .subtitle {
   font-size: var(--fs-md);
   color: var(--fg-supertext);
-  max-width: 680px;
   line-height: var(--lh-loose);
   margin-bottom: 48px;
 }
