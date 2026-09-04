@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/demanddrive-design-system-af635a7e-cca8-495c-aa39-8f92fea211a2/colors_and_type.css">
+  <script src="_ds/demanddrive-design-system-af635a7e-cca8-495c-aa39-8f92fea211a2/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; }
+    a { color: var(--dd-blue); }
+    a:hover { color: var(--dd-orange); }
+    .dd-range { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 999px; background: var(--highlight-gradient); outline: none; cursor: pointer; }
+    .dd-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--dd-navy); border: 2px solid var(--dd-white); box-shadow: var(--shadow-sm); cursor: pointer; }
+    .dd-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--dd-navy); border: 2px solid var(--dd-white); box-shadow: var(--shadow-sm); cursor: pointer; }
+    .dd-range::-moz-range-track { height: 6px; border-radius: 999px; background: var(--highlight-gradient); }
+    .dd-range:disabled { cursor: default; }
+    .dd-range:disabled::-webkit-slider-thumb { cursor: default; }
+    .dd-range:disabled::-moz-range-thumb { cursor: default; }
+  </style>
+</helmet>
+<div style="background: var(--bg); min-height: 100vh; padding: 56px 24px 96px; font-family: var(--font-body);">
+  <div style="max-width: 1160px; margin: 0 auto;">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 40px;">
+      <img src="assets/logo-demanddrive.svg" alt="demandDrive" style="height: 30px;" />
+      <div class="dd-supertext" style="letter-spacing: var(--ls-wide);">SDR HIRING &middot; ROI CALCULATOR</div>
+    </div>
+
+    <h1 style="font-size: 56px; max-width: 820px; margin-bottom: 20px;">What is hiring an SDR really costing you?</h1>
+    <p style="font-size: var(--fs-md); color: var(--fg-supertext); max-width: 680px; line-height: var(--lh-loose); margin-bottom: 48px;">Sales leaders budget for salary. The fully loaded number is bigger, and it hits every month whether or not the rep is producing. Adjust the inputs below, or use our averages if you are not sure.</p>
+
+    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap;">
+      <div style="min-width: 220px;">
+        <div class="dd-supertext">TEAM SIZE</div>
+        <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); color: var(--fg-heading); margin-top: 4px;">{{ teamSizeDisplay }} <span style="font-size: var(--fs-md); color: var(--fg-supertext); font-family: var(--font-body);">SDR{{ teamSizeSuffix }}</span></div>
+      </div>
+      <input type="range" class="dd-range" min="1" max="5" step="1" value="{{ teamSize }}" onInput="{{ onTeamSizeChange }}" style="flex: 1; min-width: 240px;" />
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; align-items: start;">
+
+      <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px;">
+        <div class="dd-supertext">BUILDING IN-HOUSE</div>
+        <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); color: var(--fg-heading); margin-top: 8px;">{{ inHouseMonthlyPerRepFmt }}<span style="font-size: var(--fs-md); color: var(--fg-supertext); font-family: var(--font-body);">/mo</span></div>
+        <p style="color: var(--fg-supertext); margin-top: 4px; margin-bottom: 24px;">fully loaded cost, per rep</p>
+
+        <sc-for list="{{ sliders }}" as="item" hint-placeholder-count="6">
+          <div style="padding: 18px 0; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px;">
+              <div style="font-weight: 500;">{{ item.label }}</div>
+              <div style="font-family: var(--font-heading); font-size: var(--fs-lg); color: var(--fg-heading); white-space: nowrap;">{{ item.displayValue }}</div>
+            </div>
+            <sc-if value="{{ item.helper }}" hint-placeholder-val="{{ false }}">
+              <div class="dd-caption" style="margin-bottom: 10px;">{{ item.helper }}</div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <input type="range" class="dd-range" min="{{ item.min }}" max="{{ item.max }}" step="{{ item.step }}" value="{{ item.value }}" disabled="{{ item.useAvg }}" onInput="{{ item.onChange }}" style="flex: 1; opacity: {{ item.sliderOpacity }};" />
+              <label style="display: flex; align-items: center; gap: 6px; font-size: var(--fs-2xs); color: var(--fg-supertext); white-space: nowrap; cursor: pointer;">
+                <input type="checkbox" checked="{{ item.useAvg }}" onChange="{{ item.onToggleAvg }}" style="accent-color: var(--dd-navy); cursor: pointer;" />
+                use average
+              </label>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background: var(--dd-navy); border-radius: var(--radius-lg); padding: 32px; color: var(--dd-white);">
+        <div class="dd-supertext" style="color: var(--dd-neutral-3);">PARTNERING WITH DEMANDDRIVE</div>
+        <div style="font-family: var(--font-heading); font-size: var(--fs-3xl); margin-top: 8px;">{{ ddMonthlyPerRepFmt }}<span style="font-size: var(--fs-md); color: var(--dd-neutral-3); font-family: var(--font-body);">/mo</span></div>
+        <p style="color: var(--dd-neutral-3); margin-top: 4px; margin-bottom: 24px;">all-inclusive, per rep &mdash; rate improves as your team grows</p>
+
+        <sc-for list="{{ ddIncludedItems }}" as="row" hint-placeholder-count="5">
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--dd-white-20);">
+            <div>{{ row.label }}</div>
+            <div style="color: var(--dd-neutral-3); white-space: nowrap;">{{ row.value }}</div>
+          </div>
+        </sc-for>
+
+        <div style="border-top: 1px solid var(--dd-white-20); margin-top: 8px; padding-top: 18px; display: flex; justify-content: space-between;">
+          <div style="color: var(--dd-neutral-3);">Ramp to full productivity</div>
+          <div style="font-weight: 600;">2&ndash;4 weeks</div>
+        </div>
+
+        <p style="color: var(--dd-neutral-3); font-size: var(--fs-3xs); margin-top: 18px;">*Does not include CRM or Clay.</p>
+      </div>
+    </div>
+
+    <div style="background: var(--dd-blue); border-radius: var(--radius-lg); padding: 36px 40px; margin-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; color: var(--dd-white);">
+      <div style="max-width: 560px;">
+        <h3 style="color: var(--dd-white); font-size: var(--fs-2xl); margin-bottom: 10px;">{{ savingsHeadline }}</h3>
+        <p style="color: rgba(255,255,255,0.85); font-size: var(--fs-2xs);">Based on your in-house cost of {{ inHouseMonthlyPerRepFmt }}/mo per rep versus demandDrive's flat {{ ddMonthlyPerRepFmt }}/mo, across {{ teamSize }} SDR{{ teamSizeSuffix }}.</p>
+      </div>
+      <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+        <div>
+          <div class="dd-supertext" style="color: rgba(255,255,255,0.75);">PER REP</div>
+          <div style="font-family: var(--font-heading); font-size: var(--fs-2xl); margin-top: 4px;">{{ savingsPerRepMonthlyFmt }}<span style="font-size: var(--fs-sm); font-family: var(--font-body); color: rgba(255,255,255,0.75);">/mo</span></div>
+          <div style="color: rgba(255,255,255,0.85); font-size: var(--fs-2xs); margin-top: 2px;">{{ savingsPerRepAnnualFmt }}/yr</div>
+        </div>
+        <div>
+          <div class="dd-supertext" style="color: rgba(255,255,255,0.75);">YOUR TEAM</div>
+          <div style="font-family: var(--font-heading); font-size: var(--fs-2xl); margin-top: 4px;">{{ savingsTeamMonthlyFmt }}<span style="font-size: var(--fs-sm); font-family: var(--font-body); color: rgba(255,255,255,0.75);">/mo</span></div>
+          <div style="color: rgba(255,255,255,0.85); font-size: var(--fs-2xs); margin-top: 2px;">{{ savingsTeamAnnualFmt }}/yr</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="dd-caption" style="margin-top: 24px; max-width: 720px;">Cost ranges reflect 2025&ndash;2026 industry benchmarks (Bridge Group, Pavilion, BLS). Actual costs vary by market and seniority. Figures here are estimates to guide planning, not a quote.</p>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 1600},
+  &quot;linkAttritionToRecruiting&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Behavior&quot;}
+}">
+const DEFAULTS = {
+  baseSalary: 6450,
+  payrollPct: 28,
+  techStack: 625,
+  mgmtQA: 1600,
+  recruiting: 2250,
+  attrition: 39,
+};
+
+const RANGES = {
+  baseSalary: { min: 4500, max: 8500, step: 50 },
+  payrollPct: { min: 20, max: 35, step: 1 },
+  techStack: { min: 300, max: 1000, step: 25 },
+  mgmtQA: { min: 900, max: 2400, step: 50 },
+  recruiting: { min: 1000, max: 3500, step: 50 },
+  attrition: { min: 15, max: 60, step: 1 },
+};
+
+function fmt(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+const DD_RATE_TIERS = { 1: 11500, 2: 11000, 3: 10750, 4: 10250 };
+function ddRateForTeam(teamSize) {
+  return DD_RATE_TIERS[teamSize] ?? 10000;
+}
+
+class Component extends DCLogic {
+  state = {
+    teamSize: 3,
+    values: { ...DEFAULTS },
+    useAvg: {
+      baseSalary: true, payrollPct: true, techStack: true,
+      mgmtQA: true, recruiting: true, attrition: true,
+    },
+  };
+
+  setValue(key, v) {
+    this.setState(s => ({ values: { ...s.values, [key]: v } }));
+  }
+
+  toggleAvg(key) {
+    this.setState(s => {
+      const nextUseAvg = !s.useAvg[key];
+      const values = { ...s.values };
+      if (nextUseAvg) values[key] = DEFAULTS[key];
+      return { useAvg: { ...s.useAvg, [key]: nextUseAvg }, values };
+    });
+  }
+
+  renderVals() {
+    const v = this.state.values;
+    const teamSize = this.state.teamSize;
+    const linkAttrition = this.props.linkAttritionToRecruiting ?? true;
+    const ddRate = ddRateForTeam(teamSize);
+
+    const payrollBenefits = v.baseSalary * (v.payrollPct / 100);
+    const recruitingAdjusted = linkAttrition
+      ? v.recruiting * (v.attrition / DEFAULTS.attrition)
+      : v.recruiting;
+
+    const inHouseMonthlyPerRep = v.baseSalary + payrollBenefits + v.techStack + v.mgmtQA + recruitingAdjusted;
+    const ddMonthlyPerRep = ddRate;
+
+    const savingsPerRepMonthly = inHouseMonthlyPerRep - ddMonthlyPerRep;
+    const savingsPerRepAnnual = savingsPerRepMonthly * 12;
+    const savingsTeamMonthly = savingsPerRepMonthly * teamSize;
+    const savingsTeamAnnual = savingsPerRepAnnual * teamSize;
+
+    const sliderDef = (key, label, unit, helper) => ({
+      key,
+      label,
+      value: v[key],
+      min: RANGES[key].min,
+      max: RANGES[key].max,
+      step: RANGES[key].step,
+      useAvg: this.state.useAvg[key],
+      sliderOpacity: this.state.useAvg[key] ? 0.45 : 1,
+      helper: helper || false,
+      onChange: (e) => this.setValue(key, Number(e.target.value)),
+      onToggleAvg: () => this.toggleAvg(key),
+      displayValue: unit === 'pct' ? `${v[key]}%` : `${fmt(v[key])}/mo`,
+    });
+
+    const sliders = [
+      sliderDef('baseSalary', 'Base salary + commission', '$'),
+      { ...sliderDef('payrollPct', 'Payroll tax & benefits', 'pct'), displayValue: `${fmt(payrollBenefits)}/mo (${v.payrollPct}%)` },
+      sliderDef('techStack', 'Tech stack & data seats', '$'),
+      sliderDef('mgmtQA', 'Management & QA oversight', '$'),
+      { ...sliderDef('recruiting', 'Recruiting, onboarding & turnover', '$'), displayValue: `${fmt(recruitingAdjusted)}/mo`, helper: `amortized at ${v.attrition}% annual attrition` },
+      sliderDef('attrition', 'Annual attrition rate', 'pct'),
+    ];
+
+    return {
+      teamSize,
+      teamSizeDisplay: teamSize >= 5 ? '5+' : String(teamSize),
+      teamSizeSuffix: teamSize === 1 ? '' : 's',
+      onTeamSizeChange: (e) => this.setState({ teamSize: Number(e.target.value) }),
+      sliders,
+      inHouseMonthlyPerRepFmt: fmt(inHouseMonthlyPerRep),
+      ddMonthlyPerRepFmt: fmt(ddMonthlyPerRep),
+      ddIncludedItems: [
+        { label: 'Dedicated, trained SDR talent', value: 'included' },
+        { label: 'Program & performance management', value: 'included' },
+        { label: 'Full tech & data stack*', value: 'included' },
+        { label: 'Reporting & QA', value: 'included' },
+        { label: 'Recruiting, onboarding & turnover risk', value: 'carried by us' },
+      ],
+      savingsHeadline: savingsPerRepAnnual >= 0
+        ? `Save roughly ${fmt(savingsPerRepAnnual)} a year, per rep.`
+        : `demandDrive costs ${fmt(Math.abs(savingsPerRepAnnual))} more a year, per rep.`,
+      savingsPerRepMonthlyFmt: fmt(Math.abs(savingsPerRepMonthly)),
+      savingsPerRepAnnualFmt: fmt(Math.abs(savingsPerRepAnnual)),
+      savingsTeamMonthlyFmt: fmt(Math.abs(savingsTeamMonthly)),
+      savingsTeamAnnualFmt: fmt(Math.abs(savingsTeamAnnual)),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

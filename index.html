@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDR ROI Calculator | demandDrive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+  <div class="wrap">
+
+    <header class="header-row">
+      <img src="assets/logo-demanddrive.svg" alt="demandDrive" class="logo" />
+      <div class="dd-supertext">SDR HIRING &middot; ROI CALCULATOR</div>
+    </header>
+
+    <h1 class="title">What is hiring an SDR really costing you?</h1>
+    <p class="subtitle">Sales leaders budget for salary. The fully loaded number is bigger, and it hits every month whether or not the rep is producing. Adjust the inputs below, or use our averages if you are not sure.</p>
+
+    <div class="card team-size-card">
+      <div class="team-size-label">
+        <div class="dd-supertext">TEAM SIZE</div>
+        <div class="team-size-number">
+          <span id="teamSizeDisplay">3</span>
+          <span class="unit-suffix">SDR<span id="teamSizeSuffix">s</span></span>
+        </div>
+      </div>
+      <input type="range" class="dd-range" id="teamSizeSlider" min="1" max="5" step="1" value="3" style="flex: 1; min-width: 240px;" />
+    </div>
+
+    <div class="grid">
+
+      <div class="card in-house-card">
+        <div class="dd-supertext">BUILDING IN-HOUSE</div>
+        <div class="big-number">
+          <span id="inHouseMonthlyPerRep">$0</span><span class="unit-suffix">/mo</span>
+        </div>
+        <p class="caption-line">fully loaded cost, per rep</p>
+
+        <div id="sliderRows"></div>
+      </div>
+
+      <div class="card dd-card">
+        <div class="dd-supertext dd-supertext-on-navy">PARTNERING WITH DEMANDDRIVE</div>
+        <div class="big-number">
+          <span id="ddMonthlyPerRep">$0</span><span class="unit-suffix unit-suffix-navy">/mo</span>
+        </div>
+        <p class="caption-line caption-line-navy">all-inclusive, per rep &mdash; rate improves as your team grows</p>
+
+        <div id="ddIncludedRows"></div>
+
+        <div class="dd-row dd-row-final">
+          <div class="dd-neutral">Ramp to full productivity</div>
+          <div class="dd-row-bold">2&ndash;4 weeks</div>
+        </div>
+
+        <p class="footnote footnote-navy">*Does not include CRM or Clay.</p>
+      </div>
+
+    </div>
+
+    <div class="savings-banner">
+      <div class="savings-left">
+        <h3 id="savingsHeadline" class="savings-headline">Save roughly $0 a year, per rep.</h3>
+        <p class="savings-desc" id="savingsDesc"></p>
+      </div>
+      <div class="savings-stats">
+        <div class="stat-block">
+          <div class="dd-supertext stat-label">PER REP</div>
+          <div class="stat-number"><span id="savingsPerRepMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
+          <div class="stat-sub"><span id="savingsPerRepAnnual">$0</span>/yr</div>
+        </div>
+        <div class="stat-block">
+          <div class="dd-supertext stat-label">YOUR TEAM</div>
+          <div class="stat-number"><span id="savingsTeamMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
+          <div class="stat-sub"><span id="savingsTeamAnnual">$0</span>/yr</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote page-footnote">Cost ranges reflect 2025&ndash;2026 industry benchmarks (Bridge Group, Pavilion, BLS). Actual costs vary by market and seniority. Figures here are estimates to guide planning, not a quote.</p>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
