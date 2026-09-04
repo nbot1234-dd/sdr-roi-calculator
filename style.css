@@ -114,7 +114,6 @@ a:hover { color: var(--dd-orange); }
 /* Title / subtitle */
 .title {
   font-size: 56px;
-  max-width: 820px;
   margin-bottom: 20px;
 }
 
