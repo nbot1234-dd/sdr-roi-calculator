@@ -37,6 +37,7 @@
     meetingToOppRate: 30,
     closeRate: 25,
     salesCycle: 3,
+    rampDays: 45,
     contractValue: 25000,
   };
 
@@ -44,6 +45,7 @@
     meetingToOppRate: { min: 10, max: 60, step: 1 },
     closeRate: { min: 10, max: 50, step: 1 },
     salesCycle: { min: 1, max: 24, step: 1 },
+    rampDays: { min: 0, max: 180, step: 5 },
     contractValue: { min: 5000, max: 250000, step: 5000 },
   };
 
@@ -109,6 +111,10 @@
     { key: 'meetingToOppRate', label: 'Meeting → opportunity rate', unit: 'pct' },
     { key: 'closeRate', label: 'Historical close rate', unit: 'pct' },
     { key: 'salesCycle', label: 'Average sales cycle length', unit: 'months', editable: true },
+    {
+      key: 'rampDays', label: 'Ramp period before first meetings', unit: 'days',
+      helper: 'demandDrive still bills during ramp — cost accrues, but meetings don’t start until this period ends.',
+    },
     { key: 'contractValue', label: 'Average contract value', unit: '$', editable: true },
   ];
 
@@ -284,6 +290,13 @@
 
       row.appendChild(top);
 
+      if (def.helper) {
+        var helper = document.createElement('div');
+        helper.className = 'slider-row-helper';
+        helper.textContent = def.helper;
+        row.appendChild(helper);
+      }
+
       var controls = document.createElement('div');
       controls.className = 'slider-row-controls';
 
@@ -419,7 +432,7 @@
           refs.suffix.textContent = val === 1 ? ' month' : ' months';
         }
       } else {
-        var displayValue = def.unit === 'pct' ? val + '%' : fmt(val);
+        var displayValue = def.unit === 'pct' ? val + '%' : def.unit === 'days' ? val + ' days' : fmt(val);
         refs.value.textContent = displayValue;
       }
 
@@ -434,10 +447,15 @@
     var meetingToOppRate = p.meetingToOppRate / 100;
     var closeRate = p.closeRate / 100;
     var cycle = p.salesCycle;
+    var rampMonths = p.rampDays / 30;
     var contractValue = p.contractValue;
 
+    // demandDrive bills for the ramp period too, but no meetings happen until
+    // it's over — so cost accrues over ramp + cycle, while every meeting has
+    // to be generated within the cycle's active (post-ramp) months.
+    var totalWindowMonths = rampMonths + cycle;
     var meetingsPerDeal = 1 / (meetingToOppRate * closeRate);
-    var perRepInvestment = ddRate * cycle;
+    var perRepInvestment = ddRate * totalWindowMonths;
     var perRepDealsNeeded = perRepInvestment / contractValue;
     var perRepMeetingsNeeded = perRepDealsNeeded * meetingsPerDeal;
     var perRepPaceMonthly = perRepMeetingsNeeded / cycle;
@@ -445,12 +463,13 @@
     var teamMeetingsNeeded = perRepMeetingsNeeded * teamSize;
     var teamPaceMonthly = perRepPaceMonthly * teamSize;
 
-    productionHeadlineEl.textContent = 'You need roughly ' + fmtCount(perRepMeetingsNeeded) + ' meetings over your ' +
-      cycle + '-month sales cycle to cover demandDrive’s cost, per rep.';
+    productionHeadlineEl.textContent = 'You need roughly ' + fmtCount(perRepMeetingsNeeded) + ' meetings within your ' +
+      cycle + '-month sales cycle (after a ' + p.rampDays + '-day ramp) to cover demandDrive’s cost, per rep.';
 
-    productionDescEl.textContent = 'Based on demandDrive’s ' + fmt(ddRate) + '/mo rate, a ' + p.meetingToOppRate +
-      '% meeting-to-opportunity rate, ' + p.closeRate + '% close rate, ' + cycle + '-month sales cycle, and ' +
-      fmt(contractValue) + ' average contract value, across ' + teamSize + ' SDR' + teamSizeSuffix + '.';
+    productionDescEl.textContent = 'Based on demandDrive’s ' + fmt(ddRate) + '/mo rate billed across a ' + p.rampDays +
+      '-day ramp plus your ' + cycle + '-month sales cycle, a ' + p.meetingToOppRate + '% meeting-to-opportunity rate, ' +
+      p.closeRate + '% close rate, and ' + fmt(contractValue) + ' average contract value, across ' + teamSize +
+      ' SDR' + teamSizeSuffix + '.';
 
     productionMeetingsPerRepEl.textContent = fmtCount(perRepMeetingsNeeded);
     productionPaceMonthlyPerRepEl.textContent = perRepPaceMonthly.toFixed(1);
