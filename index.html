@@ -32,57 +32,104 @@
       <input type="range" class="dd-range" id="teamSizeSlider" min="1" max="5" step="1" value="3" style="flex: 1; min-width: 240px;" />
     </div>
 
-    <div class="grid">
-
-      <div class="card in-house-card">
-        <div class="dd-supertext">BUILDING IN-HOUSE</div>
-        <div class="big-number">
-          <span id="inHouseMonthlyPerRep">$0</span><span class="unit-suffix">/mo</span>
-        </div>
-        <p class="caption-line">fully loaded cost, per rep</p>
-
-        <div id="sliderRows"></div>
+    <div class="tab-shell">
+      <div class="tab-nav" role="tablist">
+        <button type="button" class="tab-button active" data-tab="cost" role="tab" aria-selected="true">Cost Comparison</button>
+        <button type="button" class="tab-button" data-tab="production" role="tab" aria-selected="false">Production ROI</button>
       </div>
 
-      <div class="card dd-card">
-        <div class="dd-supertext dd-supertext-on-navy">PARTNERING WITH DEMANDDRIVE</div>
-        <div class="big-number">
-          <span id="ddMonthlyPerRep">$0</span><span class="unit-suffix unit-suffix-navy">/mo</span>
+      <div class="tab-content">
+
+        <div class="tab-panel" id="tab-cost" role="tabpanel">
+
+          <div class="grid">
+
+            <div class="card in-house-card">
+              <div class="dd-supertext">BUILDING IN-HOUSE</div>
+              <div class="big-number">
+                <span id="inHouseMonthlyPerRep">$0</span><span class="unit-suffix">/mo</span>
+              </div>
+              <p class="caption-line">fully loaded cost, per rep</p>
+
+              <div id="sliderRows"></div>
+            </div>
+
+            <div class="card dd-card">
+              <div class="dd-supertext dd-supertext-on-navy">PARTNERING WITH DEMANDDRIVE</div>
+              <div class="big-number">
+                <span id="ddMonthlyPerRep">$0</span><span class="unit-suffix unit-suffix-navy">/mo</span>
+              </div>
+              <p class="caption-line caption-line-navy">all-inclusive, per rep &mdash; rate improves as your team grows</p>
+
+              <div id="ddIncludedRows"></div>
+
+              <div class="dd-row dd-row-final">
+                <div class="dd-neutral">Ramp to full productivity</div>
+                <div class="dd-row-bold">2&ndash;4 weeks</div>
+              </div>
+
+              <p class="footnote footnote-navy">*Does not include CRM or Clay.</p>
+            </div>
+
+          </div>
+
+          <div class="savings-banner">
+            <div class="savings-left">
+              <h3 id="savingsHeadline" class="savings-headline">Save roughly $0 a year, per rep.</h3>
+              <p class="savings-desc" id="savingsDesc"></p>
+            </div>
+            <div class="savings-stats">
+              <div class="stat-block">
+                <div class="dd-supertext stat-label">PER REP</div>
+                <div class="stat-number"><span id="savingsPerRepMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
+                <div class="stat-sub"><span id="savingsPerRepAnnual">$0</span>/yr</div>
+              </div>
+              <div class="stat-block">
+                <div class="dd-supertext stat-label">YOUR TEAM</div>
+                <div class="stat-number"><span id="savingsTeamMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
+                <div class="stat-sub"><span id="savingsTeamAnnual">$0</span>/yr</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="footnote page-footnote">Cost ranges reflect 2025&ndash;2026 industry benchmarks (Bridge Group, Pavilion, BLS). Actual costs vary by market and seniority. Figures here are estimates to guide planning, not a quote.</p>
+
         </div>
-        <p class="caption-line caption-line-navy">all-inclusive, per rep &mdash; rate improves as your team grows</p>
 
-        <div id="ddIncludedRows"></div>
+        <div class="tab-panel" id="tab-production" role="tabpanel" hidden>
 
-        <div class="dd-row dd-row-final">
-          <div class="dd-neutral">Ramp to full productivity</div>
-          <div class="dd-row-bold">2&ndash;4 weeks</div>
+          <div class="card production-card">
+            <div class="dd-supertext">PRODUCTION NEEDED FOR ROI</div>
+            <p class="caption-line" style="margin-top: 8px;">Estimate the meetings your SDR(s) need to generate to earn back demandDrive&rsquo;s cost, based on your pipeline conversion assumptions.</p>
+
+            <div id="productionSliderRows"></div>
+          </div>
+
+          <div class="savings-banner">
+            <div class="savings-left">
+              <h3 id="productionHeadline" class="savings-headline">You need roughly 0 meetings to break even, per rep.</h3>
+              <p class="savings-desc" id="productionDesc"></p>
+            </div>
+            <div class="savings-stats">
+              <div class="stat-block">
+                <div class="dd-supertext stat-label">PER REP</div>
+                <div class="stat-number"><span id="productionMeetingsPerRep">0</span></div>
+                <div class="stat-sub"><span id="productionPaceMonthlyPerRep">0</span>/mo pace</div>
+              </div>
+              <div class="stat-block">
+                <div class="dd-supertext stat-label">YOUR TEAM</div>
+                <div class="stat-number"><span id="productionMeetingsTeam">0</span></div>
+                <div class="stat-sub"><span id="productionPaceMonthlyTeam">0</span>/mo pace</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="footnote page-footnote">Meeting and conversion benchmarks above are illustrative starting points &mdash; swap in your own pipeline data for a precise picture.</p>
+
         </div>
 
-        <p class="footnote footnote-navy">*Does not include CRM or Clay.</p>
       </div>
-
     </div>
-
-    <div class="savings-banner">
-      <div class="savings-left">
-        <h3 id="savingsHeadline" class="savings-headline">Save roughly $0 a year, per rep.</h3>
-        <p class="savings-desc" id="savingsDesc"></p>
-      </div>
-      <div class="savings-stats">
-        <div class="stat-block">
-          <div class="dd-supertext stat-label">PER REP</div>
-          <div class="stat-number"><span id="savingsPerRepMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
-          <div class="stat-sub"><span id="savingsPerRepAnnual">$0</span>/yr</div>
-        </div>
-        <div class="stat-block">
-          <div class="dd-supertext stat-label">YOUR TEAM</div>
-          <div class="stat-number"><span id="savingsTeamMonthly">$0</span><span class="unit-suffix unit-suffix-savings">/mo</span></div>
-          <div class="stat-sub"><span id="savingsTeamAnnual">$0</span>/yr</div>
-        </div>
-      </div>
-    </div>
-
-    <p class="footnote page-footnote">Cost ranges reflect 2025&ndash;2026 industry benchmarks (Bridge Group, Pavilion, BLS). Actual costs vary by market and seniority. Figures here are estimates to guide planning, not a quote.</p>
 
   </div>
 </div>

@@ -29,6 +29,24 @@
     return '$' + Math.round(n).toLocaleString('en-US');
   }
 
+  function fmtCount(n) {
+    return Math.ceil(n).toLocaleString('en-US');
+  }
+
+  var PRODUCTION_DEFAULTS = {
+    meetingToOppRate: 30,
+    closeRate: 25,
+    salesCycle: 3,
+    contractValue: 25000,
+  };
+
+  var PRODUCTION_RANGES = {
+    meetingToOppRate: { min: 10, max: 60, step: 1 },
+    closeRate: { min: 10, max: 50, step: 1 },
+    salesCycle: { min: 1, max: 12, step: 1 },
+    contractValue: { min: 5000, max: 100000, step: 1000 },
+  };
+
   var STORAGE_KEY = 'sdr-roi-calculator-state';
 
   function loadStoredState() {
@@ -60,12 +78,14 @@
       baseSalary: true, payrollPct: true, techStack: true,
       mgmtQA: true, recruiting: true, attrition: true,
     },
+    production: Object.assign({}, PRODUCTION_DEFAULTS),
   };
 
   if (stored) {
     if (typeof stored.teamSize === 'number') state.teamSize = stored.teamSize;
     if (stored.values) state.values = Object.assign({}, DEFAULTS, stored.values);
     if (stored.useAvg) state.useAvg = Object.assign({}, state.useAvg, stored.useAvg);
+    if (stored.production) state.production = Object.assign({}, PRODUCTION_DEFAULTS, stored.production);
   }
 
   var SLIDER_DEFS = [
@@ -85,11 +105,20 @@
     { label: 'Recruiting, onboarding & turnover risk', value: 'carried by us' },
   ];
 
+  var PRODUCTION_SLIDER_DEFS = [
+    { key: 'meetingToOppRate', label: 'Meeting → opportunity rate', unit: 'pct' },
+    { key: 'closeRate', label: 'Historical close rate', unit: 'pct' },
+    { key: 'salesCycle', label: 'Average sales cycle length', unit: 'months' },
+    { key: 'contractValue', label: 'Average contract value', unit: '$' },
+  ];
+
   var sliderRowsEl = document.getElementById('sliderRows');
   var ddIncludedRowsEl = document.getElementById('ddIncludedRows');
+  var productionSliderRowsEl = document.getElementById('productionSliderRows');
   var teamSizeSlider = document.getElementById('teamSizeSlider');
 
   var sliderRowRefs = {};
+  var productionSliderRowRefs = {};
 
   function buildSliderRows() {
     SLIDER_DEFS.forEach(function (def) {
@@ -179,6 +208,52 @@
     });
   }
 
+  function buildProductionSliderRows() {
+    PRODUCTION_SLIDER_DEFS.forEach(function (def) {
+      var row = document.createElement('div');
+      row.className = 'slider-row';
+
+      var top = document.createElement('div');
+      top.className = 'slider-row-top';
+
+      var label = document.createElement('div');
+      label.className = 'slider-row-label';
+      label.textContent = def.label;
+
+      var value = document.createElement('div');
+      value.className = 'slider-row-value';
+
+      top.appendChild(label);
+      top.appendChild(value);
+      row.appendChild(top);
+
+      var controls = document.createElement('div');
+      controls.className = 'slider-row-controls';
+
+      var range = document.createElement('input');
+      range.type = 'range';
+      range.className = 'dd-range';
+      range.min = String(PRODUCTION_RANGES[def.key].min);
+      range.max = String(PRODUCTION_RANGES[def.key].max);
+      range.step = String(PRODUCTION_RANGES[def.key].step);
+      range.value = String(state.production[def.key]);
+      range.style.flex = '1';
+
+      range.addEventListener('input', function (e) {
+        state.production[def.key] = Number(e.target.value);
+        renderProduction();
+        saveState();
+      });
+
+      controls.appendChild(range);
+      row.appendChild(controls);
+
+      productionSliderRowsEl.appendChild(row);
+
+      productionSliderRowRefs[def.key] = { value: value, range: range };
+    });
+  }
+
   var teamSizeDisplayEl = document.getElementById('teamSizeDisplay');
   var teamSizeSuffixEl = document.getElementById('teamSizeSuffix');
   var inHouseMonthlyPerRepEl = document.getElementById('inHouseMonthlyPerRep');
@@ -189,6 +264,13 @@
   var savingsPerRepAnnualEl = document.getElementById('savingsPerRepAnnual');
   var savingsTeamMonthlyEl = document.getElementById('savingsTeamMonthly');
   var savingsTeamAnnualEl = document.getElementById('savingsTeamAnnual');
+
+  var productionHeadlineEl = document.getElementById('productionHeadline');
+  var productionDescEl = document.getElementById('productionDesc');
+  var productionMeetingsPerRepEl = document.getElementById('productionMeetingsPerRep');
+  var productionPaceMonthlyPerRepEl = document.getElementById('productionPaceMonthlyPerRep');
+  var productionMeetingsTeamEl = document.getElementById('productionMeetingsTeam');
+  var productionPaceMonthlyTeamEl = document.getElementById('productionPaceMonthlyTeam');
 
   function render() {
     var v = state.values;
@@ -261,14 +343,89 @@
     savingsTeamAnnualEl.textContent = fmt(Math.abs(savingsTeamAnnual));
   }
 
+  function renderProduction() {
+    var p = state.production;
+    var teamSize = state.teamSize;
+    var ddRate = ddRateForTeam(teamSize);
+    var teamSizeSuffix = teamSize === 1 ? '' : 's';
+
+    PRODUCTION_SLIDER_DEFS.forEach(function (def) {
+      var refs = productionSliderRowRefs[def.key];
+      var val = p[def.key];
+      var displayValue;
+
+      if (def.unit === 'pct') {
+        displayValue = val + '%';
+      } else if (def.unit === 'months') {
+        displayValue = val + (val === 1 ? ' month' : ' months');
+      } else {
+        displayValue = fmt(val);
+      }
+
+      refs.value.textContent = displayValue;
+      refs.range.value = String(val);
+    });
+
+    var meetingToOppRate = p.meetingToOppRate / 100;
+    var closeRate = p.closeRate / 100;
+    var cycle = p.salesCycle;
+    var contractValue = p.contractValue;
+
+    var meetingsPerDeal = 1 / (meetingToOppRate * closeRate);
+    var perRepInvestment = ddRate * cycle;
+    var perRepDealsNeeded = perRepInvestment / contractValue;
+    var perRepMeetingsNeeded = perRepDealsNeeded * meetingsPerDeal;
+    var perRepPaceMonthly = perRepMeetingsNeeded / cycle;
+
+    var teamMeetingsNeeded = perRepMeetingsNeeded * teamSize;
+    var teamPaceMonthly = perRepPaceMonthly * teamSize;
+
+    productionHeadlineEl.textContent = 'You need roughly ' + fmtCount(perRepMeetingsNeeded) + ' meetings over your ' +
+      cycle + '-month sales cycle to cover demandDrive’s cost, per rep.';
+
+    productionDescEl.textContent = 'Based on demandDrive’s ' + fmt(ddRate) + '/mo rate, a ' + p.meetingToOppRate +
+      '% meeting-to-opportunity rate, ' + p.closeRate + '% close rate, ' + cycle + '-month sales cycle, and ' +
+      fmt(contractValue) + ' average contract value, across ' + teamSize + ' SDR' + teamSizeSuffix + '.';
+
+    productionMeetingsPerRepEl.textContent = fmtCount(perRepMeetingsNeeded);
+    productionPaceMonthlyPerRepEl.textContent = perRepPaceMonthly.toFixed(1);
+    productionMeetingsTeamEl.textContent = fmtCount(teamMeetingsNeeded);
+    productionPaceMonthlyTeamEl.textContent = teamPaceMonthly.toFixed(1);
+  }
+
   teamSizeSlider.value = String(state.teamSize);
   teamSizeSlider.addEventListener('input', function (e) {
     state.teamSize = Number(e.target.value);
     render();
+    renderProduction();
     saveState();
+  });
+
+  var tabButtons = document.querySelectorAll('.tab-button');
+  var tabPanels = {
+    cost: document.getElementById('tab-cost'),
+    production: document.getElementById('tab-production'),
+  };
+
+  tabButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var target = button.getAttribute('data-tab');
+
+      tabButtons.forEach(function (b) {
+        var active = b === button;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      Object.keys(tabPanels).forEach(function (key) {
+        tabPanels[key].hidden = key !== target;
+      });
+    });
   });
 
   buildSliderRows();
   buildDdIncludedRows();
+  buildProductionSliderRows();
   render();
+  renderProduction();
 })();
