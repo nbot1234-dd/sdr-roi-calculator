@@ -43,8 +43,8 @@
   var PRODUCTION_RANGES = {
     meetingToOppRate: { min: 10, max: 60, step: 1 },
     closeRate: { min: 10, max: 50, step: 1 },
-    salesCycle: { min: 1, max: 12, step: 1 },
-    contractValue: { min: 5000, max: 100000, step: 1000 },
+    salesCycle: { min: 1, max: 24, step: 1 },
+    contractValue: { min: 5000, max: 250000, step: 5000 },
   };
 
   var STORAGE_KEY = 'sdr-roi-calculator-state';
@@ -108,8 +108,8 @@
   var PRODUCTION_SLIDER_DEFS = [
     { key: 'meetingToOppRate', label: 'Meeting → opportunity rate', unit: 'pct' },
     { key: 'closeRate', label: 'Historical close rate', unit: 'pct' },
-    { key: 'salesCycle', label: 'Average sales cycle length', unit: 'months' },
-    { key: 'contractValue', label: 'Average contract value', unit: '$' },
+    { key: 'salesCycle', label: 'Average sales cycle length', unit: 'months', editable: true },
+    { key: 'contractValue', label: 'Average contract value', unit: '$', editable: true },
   ];
 
   var sliderRowsEl = document.getElementById('sliderRows');
@@ -220,11 +220,68 @@
       label.className = 'slider-row-label';
       label.textContent = def.label;
 
-      var value = document.createElement('div');
-      value.className = 'slider-row-value';
-
       top.appendChild(label);
-      top.appendChild(value);
+
+      var refs = { range: null };
+
+      if (def.editable) {
+        var valueWrap = document.createElement('div');
+        valueWrap.className = 'slider-row-value slider-row-value-editable';
+
+        var prefix = null;
+        var suffix = null;
+
+        if (def.unit === '$') {
+          prefix = document.createElement('span');
+          prefix.textContent = '$';
+          valueWrap.appendChild(prefix);
+        }
+
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'slider-row-value-input';
+        input.min = String(PRODUCTION_RANGES[def.key].min);
+        input.step = String(PRODUCTION_RANGES[def.key].step);
+        input.value = String(state.production[def.key]);
+        valueWrap.appendChild(input);
+
+        if (def.unit === 'months') {
+          suffix = document.createElement('span');
+          suffix.textContent = ' months';
+          valueWrap.appendChild(suffix);
+        }
+
+        function commit(raw) {
+          var num = Number(raw);
+          if (raw === '' || isNaN(num)) num = PRODUCTION_DEFAULTS[def.key];
+          if (num < PRODUCTION_RANGES[def.key].min) num = PRODUCTION_RANGES[def.key].min;
+          state.production[def.key] = num;
+          renderProduction();
+          saveState();
+        }
+
+        input.addEventListener('input', function (e) {
+          var num = Number(e.target.value);
+          if (e.target.value === '' || isNaN(num)) return;
+          state.production[def.key] = num;
+          renderProduction();
+          saveState();
+        });
+
+        input.addEventListener('change', function (e) {
+          commit(e.target.value);
+        });
+
+        top.appendChild(valueWrap);
+        refs.input = input;
+        refs.suffix = suffix;
+      } else {
+        var value = document.createElement('div');
+        value.className = 'slider-row-value';
+        top.appendChild(value);
+        refs.value = value;
+      }
+
       row.appendChild(top);
 
       var controls = document.createElement('div');
@@ -250,7 +307,8 @@
 
       productionSliderRowsEl.appendChild(row);
 
-      productionSliderRowRefs[def.key] = { value: value, range: range };
+      refs.range = range;
+      productionSliderRowRefs[def.key] = refs;
     });
   }
 
@@ -352,17 +410,24 @@
     PRODUCTION_SLIDER_DEFS.forEach(function (def) {
       var refs = productionSliderRowRefs[def.key];
       var val = p[def.key];
-      var displayValue;
 
-      if (def.unit === 'pct') {
-        displayValue = val + '%';
-      } else if (def.unit === 'months') {
-        displayValue = val + (val === 1 ? ' month' : ' months');
+      if (def.editable) {
+        if (document.activeElement !== refs.input) {
+          refs.input.value = String(val);
+        }
+        if (refs.suffix) {
+          refs.suffix.textContent = val === 1 ? ' month' : ' months';
+        }
       } else {
-        displayValue = fmt(val);
+        var displayValue = def.unit === 'pct' ? val + '%' : fmt(val);
+        refs.value.textContent = displayValue;
       }
 
-      refs.value.textContent = displayValue;
+      // Typed values can exceed the slider's default max — extend it so the
+      // thumb still tracks the real value instead of clamping silently.
+      if (val > Number(refs.range.max)) {
+        refs.range.max = String(val);
+      }
       refs.range.value = String(val);
     });
 

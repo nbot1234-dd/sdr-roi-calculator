@@ -261,6 +261,37 @@ a:hover { color: var(--dd-orange); }
   margin-bottom: 10px;
 }
 
+.slider-row-value-editable {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.slider-row-value-input {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--fg-heading);
+  width: 6.5ch;
+  text-align: right;
+}
+
+.slider-row-value-input::-webkit-outer-spin-button,
+.slider-row-value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.slider-row-value-input[type="number"] { -moz-appearance: textfield; }
+
+.slider-row-value-input:hover { border-bottom-color: var(--border); }
+.slider-row-value-input:focus { outline: none; border-bottom-color: var(--dd-navy); }
+
 .slider-row-controls {
   display: flex;
   align-items: center;
